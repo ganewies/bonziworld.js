@@ -24,19 +24,24 @@ export class BonziClient {
         });
 
         //@ts-ignore
-        this._sckt.on('talk', (guid, text, msgid) => {
+        this._sckt.on('update', ({ guid, user }) => {
+            //@ts-ignore
+            this.listeners.get('joined')?.(guid, user);
+        });
+        //@ts-ignore
+        this._sckt.on('talk', ({ guid, text, msgid }) => {
             //@ts-ignore
             this.listeners.get("speaking")?.(guid, text, msgid);
         });
         //@ts-ignore
-        this._sckt.on('leave', (guid) => {
+        this._sckt.on('leave', ({ guid }) => {
             //@ts-ignore
             this.listeners.get('left')?.(guid);
         });
     }
 
     public sendTyping(): void {
-        this._sckt.emit("typing", 0);
+        this._sckt.emit("typing", 1);
     }
     public say(message: string): string {
         this._sckt.emit("talk", { text: message });
@@ -47,6 +52,6 @@ export class BonziClient {
         this._sckt.close();
     }
 
-    public on(ev: "join"|"left"|"speaking"|"connected", cb: (...args: any[]) => void): void { this.listeners.set(ev, cb) }
-    public off(ev: "join"|"left"|"speaking"|"connected"): void { this.listeners.delete(ev) }
+    public on(ev: "joined"|"left"|"speaking"|"connected", cb: (...args: any[]) => void): void { this.listeners.set(ev, cb) }
+    public off(ev: "joined"|"left"|"speaking"|"connected"): void { this.listeners.delete(ev) }
 }
