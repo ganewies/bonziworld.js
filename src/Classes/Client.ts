@@ -2,11 +2,14 @@ import { BonziClientConfig } from "../Interfaces/Client.js";
 import { connect as WebSocket } from "socket.io-client";
 import * as BU from "../Utils/BefaUtils.js";
 import { Logger } from '../Logger.js';
+import { Bonzi } from "../Interfaces/User.js";
 
 export class BonziClient {
     private listeners: Map<string, VoidFunction> = new Map<string, VoidFunction>;
     private log: Logger = new Logger();
     public username: string = "";
+
+    public onlineUsers: Map<string, Bonzi> = new Map<string, Bonzi>; // guid, userPublic
 
     private _sckt = WebSocket('wss://bonzi.gay', { transports: ["websocket"] });
     private conn: boolean = false;
@@ -21,6 +24,14 @@ export class BonziClient {
         });
         this._sckt.on('disconnect', () => {
             this.log.Warning(`Disconnected from BonziWORLD`);
+        });
+
+        //@ts-ignore
+        this._sckt.once('updateAll', ({ usersPublic: users }) => {
+            for (const [guid, user] of Object.entries(users)) {
+                //@ts-ignore
+                this.onlineUsers.set(guid, user);
+            }
         });
 
         //@ts-ignore
