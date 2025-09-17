@@ -1,6 +1,6 @@
 {
   "name": "bonziworld.js",
-  "version": "1.0.0",
+  "version": "SNAPSHOT-0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Create Bonziworld bots",
