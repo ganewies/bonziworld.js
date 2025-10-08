@@ -1,6 +1,6 @@
 {
   "name": "bonziworld.js",
-  "version": "0.1.1",
+  "version": "0.3.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Create Bonziworld bots",
@@ -12,13 +12,13 @@
     "typescript"
   ],
   "type": "commonjs",
-  "homepage": "https://github.com/befaci03/CollabVM.js#readme",
+  "homepage": "https://github.com/ganewies/bonziworld.js#readme",
   "bugs": {
-    "url": "https://github.com/befaci03/CollabVM.js/issues"
+    "url": "https://github.com/ganewies/bonziworld.js/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/befaci03/CollabVM.js.git"
+    "url": "git+https://github.com/ganewies/bonziworld.js.git"
   },
   "license": "GNU",
   "author": "Befaci",
@@ -26,8 +26,7 @@
     "build": "tsc",
     "test": "node tests/main.js",
     "dev": "tsc -w",
-    "prepublish": "tsc",
-    "publish-prerls": "npm publish --access public --tag prerelease"
+    "prepublish": "tsc"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
