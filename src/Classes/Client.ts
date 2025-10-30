@@ -1,6 +1,5 @@
 import { BonziClientConfig } from "../Interfaces/Client.js";
 import { connect as WebSocket } from "socket.io-client";
-import * as BU from "../Utils/BefaUtils.js";
 import { Logger } from '../Logger.js';
 import { Bonzi } from "../Interfaces/User.js";
 import { Colors } from "../Utils/Colors.js";
@@ -19,7 +18,7 @@ export class BonziClient {
     private conn: boolean = false;
     private conntime: number = Date.now();
     constructor(username?: string | null | undefined, config?: BonziClientConfig | undefined | null, url: string = "wss://bonziworld.net") {
-        this.username = username || ""; // if empty, it will be renamed as Anonymous
+        this.username = username || "Anonymous Bot"; // if empty, it will be renamed as Anonymous, but for backward compatibility let's say to put Anonymous
 
         this._sckt = WebSocket(url, { transports: ["websocket"] });
         this._sckt.on('connect', () => {
@@ -50,13 +49,34 @@ export class BonziClient {
         });
         //@ts-ignore
         this._sckt.on('talk', ({ guid, text, msgid }) => {
+            const user = this.onlineUsers?.get(guid)?.userPublic;
             //@ts-ignore
-            this.listeners.get("speaking")?.(guid, text, msgid);
+            this.listeners.get("speaking")?.(user, text, msgid);
+        });
+        //@ts-ignore
+        this._sckt.on('image', ({ guid, url, msgid }) => {
+            const user = this.onlineUsers?.get(guid)?.userPublic;
+            //@ts-ignore
+            this.listeners.get("speaking")?.(user, `Displayed an image: ${url}`, msgid);
+        });
+        //@ts-ignore
+        this._sckt.on('video', ({ guid, url, msgid }) => {
+            const user = this.onlineUsers?.get(guid)?.userPublic;
+            //@ts-ignore
+            this.listeners.get("speaking")?.(user, `Displayed a video: ${url}`, msgid);
+        });
+        //@ts-ignore
+        this._sckt.on('youtube', ({ guid, vid }) => {
+            const user = this.onlineUsers?.get(guid)?.userPublic;
+            //@ts-ignore
+            this.listeners.get("speaking")?.(user, `Displayed a YouTube video: https://youtube.com/watch?v=${vid}`);
         });
         //@ts-ignore
         this._sckt.on('leave', ({ guid }) => {
+            const profile = this.onlineUsers?.get(guid)?.userPublic;
             //@ts-ignore
-            this.listeners.get('left')?.(guid);
+            this.listeners.get('left')?.(guid, profile);
+            this.onlineUsers.delete(guid);
         });
     }
 
@@ -101,7 +121,7 @@ export class BonziClient {
 
     /**
      * Send a YouTube video
-     * @param vid The YouTube video ID (not full URL)
+     * @param vid The video ID (not full URL)
      */
     public showYTVideo(vid: string): void {
         if (!this.conn) throw new Error('Emited a message but client not connected');
@@ -160,7 +180,7 @@ export class BonziClient {
      * Close your connection
      */
     public leave(): void {
-        this._sckt.close();
+        if (this.conn) this._sckt.close();
         process.exit();
     }
 
